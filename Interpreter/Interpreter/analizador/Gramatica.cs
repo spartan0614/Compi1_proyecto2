@@ -346,7 +346,7 @@ namespace Interpreter.analizador
                      | menos + EXP                  //2 
                      | EXP + mas + mas              //3
                      | EXP + menos + menos          //3
-                     | "(" + EXP + ")"              //1    
+                     | "(" + EXP + ")"    //3    
                      | New + id + "(" + ")"         //2       
                      | Decimal                      
                      | numero                       

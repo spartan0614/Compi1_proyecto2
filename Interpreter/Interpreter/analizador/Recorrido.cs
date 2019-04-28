@@ -24,21 +24,22 @@ namespace Interpreter.analizador
                     expresion(root.ChildNodes[0]);   //LISTA_CLASES
                     break;
                 case "LISTA_CLASES":
-                    Console.WriteLine("Entro a LISTA_CLASES");
+                    //Console.WriteLine("Entro a LISTA_CLASES");
                     if (root.ChildNodes.Count == 2) {
-                        Console.WriteLine("LISTA_CLASES");
+                        //Console.WriteLine("LISTA_CLASES");
                         expresion(root.ChildNodes[0]);    //LISTA_CLASES
-                        Console.WriteLine("CLASE");
+                        //Console.WriteLine("CLASE");
                         expresion(root.ChildNodes[1]);    //CLASE
 
                     } else if (root.ChildNodes.Count == 1) {
-                        Console.WriteLine("CLASE");
+                        //Console.WriteLine("CLASE");
                         expresion(root.ChildNodes[0]);    //CLASE
                     }
                     break;
                 case "CLASE":
-                    Console.WriteLine("Entro a CLASE");
+                    //Console.WriteLine("Entro a CLASE");
                     CLASE(root);
+                    
                     break;
             }
             return "";
@@ -64,12 +65,13 @@ namespace Interpreter.analizador
                 //Console.WriteLine("CLASE sin imports");
                 LISTA_CUERPO(root.ChildNodes[2], entornos);         //LISTA_CUERPO
             }
+            entornos.Peek().MostrarVariables();
         }
 
         public static void IMPORTAR(ParseTreeNode root) {
             String listado = "";
             listado += LISTA_ID(root.ChildNodes[1], listado);
-            Console.WriteLine(listado);
+            //Console.WriteLine(listado);
         }
 
         public static string LISTA_ID(ParseTreeNode root, String listado) {
@@ -101,25 +103,27 @@ namespace Interpreter.analizador
                 
                 CUERPO(root.ChildNodes[0], entornos);
             }
+            
         }
 
         public static void CUERPO(ParseTreeNode root, Stack<Ambito> entornos) {
             switch ((String)root.ChildNodes[0].Term.Name)
             {
                 case "FUNCION":
-                    Console.WriteLine("Entro a FUNCION");
+                    
                     FUNCION(root.ChildNodes[0]);
                     break;
                 case "MAIN":
 
                     break;
                 case "DECLARACION":
-                    Console.WriteLine("Entro a DECLARACION");
+                    
                     DECLARACION(root.ChildNodes[0], entornos);
-                    entornos.Peek().MostrarVariables();
+                    
                     break;
                 
             }
+            
         }
 
         private static void DECLARACION(ParseTreeNode root, Stack<Ambito> entornos) {
@@ -136,7 +140,6 @@ namespace Interpreter.analizador
                     {  
                         if (root.ChildNodes[0].Token == null)
                         {
-                            //1 declaracion
                             String listado = "";
                             listado += LISTA_ID(root.ChildNodes[1], listado);
                             string[] identificadores = listado.Split(',');
@@ -148,33 +151,12 @@ namespace Interpreter.analizador
                         }
                         else
                         {
-                            //3 declaracion objeto
+                            //declaracion objeto
                         }
                     }
                     else {
-                        //2 array
+                        //array
                     }
-                    
-
-
-                    //if ((String)root.ChildNodes[1].Token.Value == "array")
-                    //{
-
-                    //}
-                    //else if ((String)root.ChildNodes[0].Token.Value == "id")
-                    //{
-
-                    //}
-                    //else if(((String)root.ChildNodes[0].Term.Name == "TIPO") && ((String)root.ChildNodes[1].Term.Name == "LISTA_ID"))
-                    //{
-                    //    String listado = "";
-                    //    listado += LISTA_ID(root.ChildNodes[1], listado);
-                    //    string[] identificadores = listado.Split(',');
-                    //    for (int i = 0; i < identificadores.Count(); i++) {
-                    //        Variable v = new Variable("publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores[i], EXP(root.ChildNodes[3]).ToString());
-                    //        entornos.Peek().Insertar(identificadores[i],v);
-                    //    }
-                    //}
                     break;
                 case 5:
 
@@ -213,7 +195,7 @@ namespace Interpreter.analizador
                     break;
                 case 2:
                     if (root.ChildNodes[0].Token.Value.ToString() == "print") {
-                        Console.WriteLine(EXP(root.ChildNodes[1]).ToString());
+                        //Console.WriteLine(EXP(root.ChildNodes[1]).ToString());
                     } else if (root.ChildNodes[0].Token.Value.ToString() == "return") {
 
                     } else if (root.ChildNodes[0].Token.Value.ToString() == "addfigure") {
@@ -227,17 +209,18 @@ namespace Interpreter.analizador
         private static object EXP(ParseTreeNode root) {
             switch (root.ChildNodes.Count) {
                 case 3:
-                    if (root.ChildNodes[0].ToString().Contains(" (id)"))
+                    if (root.ChildNodes[0].Token != null)  //   id + punto + EXP  |   id + parAbre + parCierra   |   
                     {
 
                     }
-                    else if ((root.ChildNodes[1].Token.Value.ToString() == "+") && (root.ChildNodes[2].Token.Value.ToString() == "+"))
+                    else if ((root.ChildNodes[1].Token.Value.ToString() == "+") && (root.ChildNodes[2].Token != null))
                     {
+                        if ((root.ChildNodes[2].Token.Value.ToString() == "+")) {
 
-                    }
-                    else if ((root.ChildNodes[1].Token.Value.ToString() == "-") && (root.ChildNodes[2].Token.Value.ToString() == "-"))
-                    {
+                        }
+                        else if((root.ChildNodes[2].Token.Value.ToString() == "-")){
 
+                        }
                     }
                     else {
                         Object e1 = EXP(root.ChildNodes[0]);
