@@ -81,7 +81,7 @@ namespace Interpreter.analizador
             var Return = ToTerm("return");
             var print = ToTerm("print");
             var show = ToTerm("show");
-            var continar = ToTerm("continuar");
+            var continuar = ToTerm("continuar");
 
             var addFigure = ToTerm("addfigure");
             var circle = ToTerm("circle");
@@ -228,24 +228,27 @@ namespace Interpreter.analizador
             MAIN.Rule = main + "(" + ")" + "{" + L_SENTENCIAS + "}"
                       ;
 
-            L_SENTENCIAS.Rule = L_SENTENCIAS + SENTENCIA
-                            | SENTENCIA
-                            ;
+            L_SENTENCIAS.Rule = MakeStarRule(L_SENTENCIAS, SENTENCIA);
 
-            SENTENCIA.Rule = DECLARACION + ";"                          //1
+            //L_SENTENCIAS.Rule = L_SENTENCIAS + SENTENCIA
+            //                | SENTENCIA
+            //                ;
+
+            SENTENCIA.Rule = DECLARACION + ";"                          //1*
                            | Return + EXP + ";"                         //2*
                            | Return + ";"                               //1
-                           | EXP + ";"                                  //1
-                           | continar + ";"                             //1
+                           | EXP + ";"                                  //1*
+                           | continuar + ";"                            //1
+                           | salir + ";"                                //1
                            | print + "(" + EXP + ")" + ";"              //2*
                            | show + "(" + EXP + coma + EXP + ")" + ";"  //4
                            | addFigure + "(" + FIGURA + ")"             //2
-                           | IF                                         //1
-                           | FOR                                        //1
-                           | REPEAT                                     //1
-                           | WHILE                                      //1
-                           | HACER                                      //1
-                           | COMPROBAR                                  //1
+                           | IF                                         //1*
+                           | FOR                                        //1*
+                           | REPEAT                                     //1*
+                           | WHILE                                      //1*
+                           | HACER                                      //1*
+                           | COMPROBAR                                  //1*
                            ;
 
             IF.Rule = IF_LIST + Else + "{" + L_SENTENCIAS + "}"

@@ -25,6 +25,15 @@ namespace Interpreter.models
                 Console.WriteLine(kvp.Value.acceso + " - " + kvp.Value.tipo + " - " + kvp.Value.nombre + " - " + kvp.Value.valor);
             }
         }
+
+        public Variable Buscar(String identificador) {
+            foreach (KeyValuePair<String, Variable> kvp in this.variables) {
+                if (identificador == kvp.Key) {
+                    return kvp.Value;
+                }
+            }
+            return null;
+        }
         
     }
 }
