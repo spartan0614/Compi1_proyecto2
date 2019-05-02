@@ -211,16 +211,95 @@ namespace Interpreter.analizador
                                     EXP(SENTENCIA.ChildNodes[0], entornos);
                                     break;
                                 case "IF":
+                                    ParseTreeNode raiz_if = SENTENCIA.ChildNodes[0];
+                                    Ambito if1 = new Ambito();
+                                    switch (raiz_if.ChildNodes.Count) {
+                                        case 1: //NO TIENE ELSE
+                                            List<Condicion> condiciones_if = new List<Condicion>();
+                                            RECORRER_CONDICIONES(raiz_if.ChildNodes[0], condiciones_if);
+                                            bool cumplio = false;
+
+                                            for (int i = 0; i < condiciones_if.Count; i++) {
+                                                if((bool)EXP(condiciones_if.ElementAt(i).restriccion,entornos)) {
+                                                    cumplio = true;  //Si entró en este if
+                                                }
+                                            }
+
+                                            break;
+                                        case 3: //TIENE ELSE
+
+                                            break;
+                                    }
 
                                     break;
                                 case "FOR":
                                     ParseTreeNode raiz_for = SENTENCIA.ChildNodes[0];
                                     Ambito for1 = new Ambito();
+                                    //Int32 inicio;
+                                    Variable valor_inicial = null;
+                                    //OBTENIENDO VALOR INICIAL
                                     if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "DECLARACION") {
-                                        Object valor_inicial = INIT_DECLARACION_FOR(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
+                                        valor_inicial = INIT_DECLARACION_FOR(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
+                                        
+
                                     } else if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "EXP") {
 
                                     }
+
+                                    //EJECUTANDO FOR
+                                    entornos.Push(for1);
+                                    entornos.Peek().Insertar(valor_inicial.nombre, valor_inicial);
+                                    while ((bool)EXP(raiz_for.ChildNodes[2], entornos)) {
+                                        
+                                        var res = L_SENTENCIAS(raiz_for.ChildNodes[6], entornos);
+                                        
+
+                                        if (!res.Equals("@FINALLY@"))
+                                        {
+                                            if (res.ToString().Equals("@SALIR@"))
+                                            {
+                                                res = "@FINALLY@";
+                                                break;
+                                            }
+
+                                            if (res.ToString().Equals("@CONTINUAR@"))
+                                            {
+                                                continue;
+                                            }
+                                        }
+
+                                        if (raiz_for.ChildNodes[4].Token.Value.ToString() == "+") {
+                                            Variable var = getValorVariable(raiz_for.ChildNodes[3].Token.Value.ToString(), entornos);
+                                            switch (var.tipo)
+                                            {
+                                                case "int":
+                                                    var.valor = (Convert.ToInt32(var.valor) + 1).ToString();
+                                                    break;
+                                                case "double":
+                                                    var.valor = (Convert.ToDouble(var.valor) + 1).ToString();
+                                                    break;
+                                                case "char":
+                                                    var.valor = (Convert.ToInt32(Convert.ToChar(var.valor)) + 1).ToString();
+                                                    break;
+                                            }
+
+                                        } else if (raiz_for.ChildNodes[4].Token.Value.ToString() == "-") {
+                                            Variable var = getValorVariable(raiz_for.ChildNodes[3].Token.Value.ToString(), entornos);
+                                            switch (var.tipo)
+                                            {
+                                                case "int":
+                                                    var.valor = (Convert.ToInt32(var.valor) - 1).ToString();
+                                                    break;
+                                                case "double":
+                                                    var.valor = (Convert.ToDouble(var.valor) - 1).ToString();
+                                                    break;
+                                                case "char":
+                                                    var.valor = (Convert.ToInt32(Convert.ToChar(var.valor)) - 1).ToString();
+                                                    break;
+                                            }
+                                        }
+                                    }
+                                    entornos.Pop();
                                     break;
                                 case "REPEAT":
                                     ParseTreeNode raiz_repeat = SENTENCIA.ChildNodes[0];
@@ -321,29 +400,38 @@ namespace Interpreter.analizador
             return "@FINALLY@";
         }
 
-        private static object INIT_DECLARACION_FOR(ParseTreeNode root, Stack<Ambito> entornos) {
+        private static void RECORRER_CONDICIONES(ParseTreeNode root, List<Condicion> condiciones) {
+            if (root.ChildNodes.Count == 5) {
+                RECORRER_CONDICIONES(root.ChildNodes[0], condiciones);
+                Condicion c = new Condicion(root.ChildNodes[3], root.ChildNodes[4]);
+                condiciones.Add(c);
+            } else if (root.ChildNodes.Count == 3) {
+                Condicion c = new Condicion(root.ChildNodes[1], root.ChildNodes[2]);
+                condiciones.Add(c);
+            }
+        }
+
+        private static Variable INIT_DECLARACION_FOR(ParseTreeNode root, Stack<Ambito> entornos) {
             if (root.ChildNodes.Count == 4)
             {
                 if (root.ChildNodes[0].Token == null)  //No es rama
                 {
-                    if (root.ChildNodes[1].ToString().Contains(" (id)"))
+                    if (root.ChildNodes[1].ChildNodes[0].ToString().Contains(" (id)")) //ERROR
                     {
-                        String nombre = root.ChildNodes[0].Token.Value.ToString();
-
+                        String nombre = root.ChildNodes[1].ChildNodes[0].Token.Value.ToString();
                         Variable v = new Variable("publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), nombre, EXP(root.ChildNodes[3], entornos).ToString());
-                        entornos.Peek().Insertar(nombre, v);
-                        return EXP(root.ChildNodes[3], entornos);
+                        return v;
                     }
                     else {
-                        return "error";
+                        return null;
                     }
                 }
                 else
                 {
-                    return "error";
+                    return null;
                 }
             }
-            return "error";
+            return null;
         }
 
         private static object EXP(ParseTreeNode root, Stack<Ambito> entornos) {

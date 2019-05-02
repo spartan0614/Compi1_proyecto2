@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="grafica\ControlDot.cs" />
     <Compile Include="models\Ambito.cs" />
+    <Compile Include="models\Condicion.cs" />
     <Compile Include="models\Variable.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

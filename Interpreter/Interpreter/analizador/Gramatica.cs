@@ -122,7 +122,7 @@ namespace Interpreter.analizador
             NonTerminal L_SENTENCIAS = new NonTerminal("L_SENTENCIAS");
             NonTerminal SENTENCIA = new NonTerminal("SENTENCIA");
             NonTerminal INIT = new NonTerminal("INIT");
-            NonTerminal IF = new NonTerminal("IF_STMT");
+            NonTerminal IF = new NonTerminal("IF");
             NonTerminal IF_LIST = new NonTerminal("IF_LIST");
             NonTerminal FOR = new NonTerminal("FOR");
             NonTerminal FOR_INIT = new NonTerminal("FOR_INIT");
@@ -244,9 +244,9 @@ namespace Interpreter.analizador
                            | show + "(" + EXP + coma + EXP + ")" + ";"  //4
                            | addFigure + "(" + FIGURA + ")"             //2
                            | IF                                         //1*
-                           | FOR                                        //1*
-                           | REPEAT                                     //1*
-                           | WHILE                                      //1*
+                           | FOR                                        //1**
+                           | REPEAT                                     //1**
+                           | WHILE                                      //1**
                            | HACER                                      //1*
                            | COMPROBAR                                  //1*
                            ;
@@ -259,7 +259,8 @@ namespace Interpreter.analizador
                          | If + "(" + EXP + ")" + "{" + L_SENTENCIAS + "}"
                          ;
 
-            FOR.Rule = For + "(" + FOR_INIT + ";" + EXP + ";" + EXP + ")" + "{" + L_SENTENCIAS + "}"
+            FOR.Rule = For + "(" + FOR_INIT + ";" + EXP + ";" + id + mas + mas + ")" + "{" + L_SENTENCIAS + "}"
+                     | For + "(" + FOR_INIT + ";" + EXP + ";" + id + menos + menos + ")" + "{" + L_SENTENCIAS + "}"
                      ;
 
             FOR_INIT.Rule = DECLARACION
