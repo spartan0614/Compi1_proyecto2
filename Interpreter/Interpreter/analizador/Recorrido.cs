@@ -403,7 +403,7 @@ namespace Interpreter.analizador
                                             {
                                                 foreach (var caso in casos.ChildNodes)
                                                 {
-                                                    if (EXP(caso.ChildNodes[1],entornos).Equals(sw))
+                                                    if (EXP(caso.ChildNodes[1],entornos).Equals(sw) || entro)
                                                     {
                                                         res = L_SENTENCIAS(caso.ChildNodes[2], entornos);
                                                         entro = true;
