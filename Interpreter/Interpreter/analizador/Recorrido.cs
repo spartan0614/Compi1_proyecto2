@@ -420,14 +420,48 @@ namespace Interpreter.analizador
                                                 }
                                             }
                                             entornos.Pop();
+                                            if (res == null) {
+                                                res = "@FINALLY@";
+                                            }
+
                                             if (!res.Equals("@FINALLY@")) {
                                                 return res;
                                             }
                                             break;
                                         case 5: //TIENE DEFAULT
+                                            ParseTreeNode def = raiz_switch.ChildNodes[4];
+                                            entornos.Push(switch1);
+                                            object res1 = null;
+                                            if (casos.ChildNodes.Count > 0)
+                                            {
+                                                foreach (var caso in casos.ChildNodes)
+                                                {
+                                                    if (EXP(caso.ChildNodes[1], entornos).Equals(sw) || entro)
+                                                    {
+                                                        res1 = L_SENTENCIAS(caso.ChildNodes[2], entornos);
+                                                        entro = true;
+                                                        if (!res1.Equals("@FINALLY@"))
+                                                        {
+                                                            if (res1.Equals("@SALIR@"))
+                                                            {
+                                                                done = true;
+                                                                res1 = "@FINALLY@";
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
 
+                                                if (def.ChildNodes.Count > 0 && !done) {
+                                                    res1 = L_SENTENCIAS(def, entornos);
+                                                }
+                                            }
 
-
+                                            entornos.Pop();
+                                            if (!res1.Equals("@FINALLY@"))
+                                            {
+                                                return res1;
+                                            }
                                             break;
                                     }
 
