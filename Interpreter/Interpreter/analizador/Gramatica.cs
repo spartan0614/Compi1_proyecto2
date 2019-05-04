@@ -276,15 +276,17 @@ namespace Interpreter.analizador
             HACER.Rule = hacer + "{" + L_SENTENCIAS + "}" + mientras + "(" + EXP + ")" + ";"
                      ;
 
-            COMPROBAR.Rule = comprobar + "(" + id + ")" + "{" + CASOS + "}"
+            COMPROBAR.Rule = comprobar + "(" + EXP + ")" + "{" + CASOS + "}"
+                           | comprobar + "(" + EXP + ")" + "{" + CASOS + defecto + ":" + L_SENTENCIAS + "}"
                            ;
 
-            CASOS.Rule = CASOS + CASO
-                       | CASO
-                       ;
-            CASO.Rule = caso + EXP + ":" + L_SENTENCIAS + salir + ";"
-                      | defecto + ":" + L_SENTENCIAS
-                      | defecto + ":" + L_SENTENCIAS + salir + ";"
+            //CASOS.Rule = CASOS + caso + EXP + ":" + L_SENTENCIAS + salir + ";"
+            //           | caso + EXP + ":" + L_SENTENCIAS + salir + ";"
+            //           ;
+
+            CASOS.Rule = MakePlusRule(CASOS, CASO);
+
+            CASO.Rule = caso + EXP + ":" + L_SENTENCIAS
                       ;
 
             FIGURA.Rule = circle + "(" + LISTA_EXP + ")"        //color, radio, solido, posx centro, posy centro

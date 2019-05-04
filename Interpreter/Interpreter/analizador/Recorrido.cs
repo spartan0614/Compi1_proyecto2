@@ -213,24 +213,54 @@ namespace Interpreter.analizador
                                 case "IF":
                                     ParseTreeNode raiz_if = SENTENCIA.ChildNodes[0];
                                     Ambito if1 = new Ambito();
+                                    List<Condicion> condiciones_if = new List<Condicion>();
+                                    bool cumplio = false;
                                     switch (raiz_if.ChildNodes.Count) {
                                         case 1: //NO TIENE ELSE
-                                            List<Condicion> condiciones_if = new List<Condicion>();
                                             RECORRER_CONDICIONES(raiz_if.ChildNodes[0], condiciones_if);
-                                            bool cumplio = false;
-
                                             for (int i = 0; i < condiciones_if.Count; i++) {
-                                                if((bool)EXP(condiciones_if.ElementAt(i).restriccion,entornos)) {
+                                                if ((bool)EXP(condiciones_if.ElementAt(i).restriccion, entornos)) {
                                                     cumplio = true;  //Si entró en este if
+                                                    entornos.Push(if1);
+                                                    var res = L_SENTENCIAS(condiciones_if.ElementAt(i).cuerpo_condicion, entornos);
+                                                    entornos.Pop();
+                                                    if (!res.Equals("@FINALLY@")) {
+                                                        return res;
+                                                    }
+                                                }
+                                                if (cumplio == true) {
+                                                    break;
                                                 }
                                             }
-
                                             break;
                                         case 3: //TIENE ELSE
-
+                                            RECORRER_CONDICIONES(raiz_if.ChildNodes[0], condiciones_if);
+                                            ParseTreeNode cuerpo_else = raiz_if.ChildNodes[2];
+                                            for (int i = 0; i < condiciones_if.Count; i++) {
+                                                if ((bool)EXP(condiciones_if.ElementAt(i).restriccion, entornos)) {
+                                                    cumplio = true;
+                                                    entornos.Push(if1);
+                                                    var res = L_SENTENCIAS(condiciones_if.ElementAt(i).cuerpo_condicion, entornos);
+                                                    entornos.Pop();
+                                                    if (!res.Equals("@FINALLY@")) {
+                                                        return res;
+                                                    }
+                                                }
+                                                if (cumplio == true) {
+                                                    break;
+                                                }
+                                            }
+                                            if (cumplio == false) {  //EJECUTAR EL ELSE
+                                                entornos.Push(if1);
+                                                var res = L_SENTENCIAS(cuerpo_else, entornos);
+                                                entornos.Pop();
+                                                if (!res.Equals("@FINALLY@"))
+                                                {
+                                                    return res;
+                                                }
+                                            }
                                             break;
                                     }
-
                                     break;
                                 case "FOR":
                                     ParseTreeNode raiz_for = SENTENCIA.ChildNodes[0];
@@ -240,20 +270,14 @@ namespace Interpreter.analizador
                                     //OBTENIENDO VALOR INICIAL
                                     if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "DECLARACION") {
                                         valor_inicial = INIT_DECLARACION_FOR(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
-                                        
-
                                     } else if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "EXP") {
 
                                     }
-
                                     //EJECUTANDO FOR
                                     entornos.Push(for1);
                                     entornos.Peek().Insertar(valor_inicial.nombre, valor_inicial);
                                     while ((bool)EXP(raiz_for.ChildNodes[2], entornos)) {
-                                        
                                         var res = L_SENTENCIAS(raiz_for.ChildNodes[6], entornos);
-                                        
-
                                         if (!res.Equals("@FINALLY@"))
                                         {
                                             if (res.ToString().Equals("@SALIR@"))
@@ -261,7 +285,6 @@ namespace Interpreter.analizador
                                                 res = "@FINALLY@";
                                                 break;
                                             }
-
                                             if (res.ToString().Equals("@CONTINUAR@"))
                                             {
                                                 continue;
@@ -358,12 +381,55 @@ namespace Interpreter.analizador
                                             return res;
                                         }
                                     }
-                                   
+
                                     break;
                                 case "HACER":
 
                                     break;
                                 case "COMPROBAR":
+                                    ParseTreeNode raiz_switch = SENTENCIA.ChildNodes[0];
+                                    Ambito switch1 = new Ambito();
+                                    List<Condicion> condiciones_switch = new List<Condicion>();
+                                    bool entro = false, done = false;
+                                    var sw = EXP(raiz_switch.ChildNodes[1],entornos);    //Variable que se va a comparar
+                                    ParseTreeNode casos = raiz_switch.ChildNodes[2];
+
+                                    switch (raiz_switch.ChildNodes.Count)
+                                    {
+                                        case 3: //NO TIENE DEFAULT
+                                            entornos.Push(switch1);
+                                            object res = null;
+                                            if (casos.ChildNodes.Count > 0)
+                                            {
+                                                foreach (var caso in casos.ChildNodes)
+                                                {
+                                                    if (EXP(caso.ChildNodes[1],entornos).Equals(sw))
+                                                    {
+                                                        res = L_SENTENCIAS(caso.ChildNodes[2], entornos);
+                                                        entro = true;
+                                                        if (!res.Equals("@FINALLY@"))
+                                                        {
+                                                            if (res.Equals("@SALIR@"))
+                                                            {
+                                                                done = true;
+                                                                res = "@FINALLY@";
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            entornos.Pop();
+                                            if (!res.Equals("@FINALLY@")) {
+                                                return res;
+                                            }
+                                            break;
+                                        case 5: //TIENE DEFAULT
+
+
+
+                                            break;
+                                    }
 
                                     break;
                             }
