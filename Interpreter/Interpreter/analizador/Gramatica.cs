@@ -326,7 +326,7 @@ namespace Interpreter.analizador
                             | LLAVE
                             ;
 
-            LLAVE.Rule = "{" + LISTA_LLAV + "}"
+            LLAVE.Rule = parAbre + LISTA_LLAV + parCierra
                        | LISTA_EXP
                        ;
 

@@ -33,7 +33,6 @@ namespace Interpreter.analizador
             }
         }
 
-
     public static String expresion(ParseTreeNode root) {
             switch ((String)root.Term.Name) {
                 case "S":
@@ -135,13 +134,9 @@ namespace Interpreter.analizador
 
                     break;
                 case "DECLARACION":
-                    
                     DECLARACION(root.ChildNodes[0], entornos);
-                    
                     break;
-                
             }
-            
         }
 
         private static void DECLARACION(ParseTreeNode root, Stack<Ambito> entornos) {
@@ -180,11 +175,33 @@ namespace Interpreter.analizador
 
                     break;
                 case 6:
-
+                    //Obteniendo valor de arreglos
                     break;
                 case 7:
 
                     break;
+            }
+        }
+
+        private static object ARRAY_INIT(ParseTreeNode root) {
+
+        }
+
+        private static object LISTA_LLAV(ParseTreeNode root) {
+
+        }
+
+        private static object LLAVE(ParseTreeNode root) {
+
+        }
+
+        private static object LISTA_EXP(ParseTreeNode root, List<object> val) {
+            if (root.ChildNodes.Count == 3) {
+                val.Add(LISTA_EXP(root.ChildNodes[0], val);
+                
+                listado += root.ChildNodes[2].Token.Value.ToString();
+            } else if (root.ChildNodes.Count == 1) {
+                val.Add(EXP(root.ChildNodes[0]));
             }
         }
 
@@ -389,7 +406,6 @@ namespace Interpreter.analizador
                                 case "COMPROBAR":
                                     ParseTreeNode raiz_switch = SENTENCIA.ChildNodes[0];
                                     Ambito switch1 = new Ambito();
-                                    List<Condicion> condiciones_switch = new List<Condicion>();
                                     bool entro = false, done = false;
                                     var sw = EXP(raiz_switch.ChildNodes[1],entornos);    //Variable que se va a comparar
                                     ParseTreeNode casos = raiz_switch.ChildNodes[2];
@@ -1158,15 +1174,15 @@ namespace Interpreter.analizador
                         Variable var = getValorVariable(root.ChildNodes[0].Token.Value.ToString(), entornos);
                         switch (var.tipo) {
                             case "int":
-                                return Int32.Parse(var.valor);
+                                return Int32.Parse(var.valor.ToString());
                             case "string":
                                 return var.valor;
                             case "double":
-                                return Double.Parse(var.valor);
+                                return Double.Parse(var.valor.ToString());
                             case "char":
-                                return var.valor.ToCharArray()[0];
+                                return var.valor.ToString().ToCharArray()[0];
                             case "bool":
-                                return Boolean.Parse(var.valor);
+                                return Boolean.Parse(var.valor.ToString());
                         }
                     } else if (valor.Contains("false (Keyword)")) {
                         return false;

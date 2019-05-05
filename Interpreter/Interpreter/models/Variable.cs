@@ -11,9 +11,9 @@ namespace Interpreter.models
         public String acceso;
         public String tipo;
         public String nombre;
-        public String valor;
+        public object valor;
 
-        public Variable(String acceso, String tipo, String nombre, String valor) {
+        public Variable(String acceso, String tipo, String nombre, object valor) {
             this.acceso = acceso;
             this.tipo = tipo;
             this.nombre = nombre;
@@ -37,7 +37,7 @@ namespace Interpreter.models
             set { nombre = value; }
         }
 
-        public string Valor
+        public object Valor
         {
             get { return valor; }
             set { valor = value; }
