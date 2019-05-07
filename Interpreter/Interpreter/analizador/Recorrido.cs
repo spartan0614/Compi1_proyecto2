@@ -175,7 +175,9 @@ namespace Interpreter.analizador
 
                     break;
                 case 6:
-                    //Obteniendo valor de arreglos
+                    //DECLARACION = TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT
+                    List<object> arreglo = new List<object>();
+                    arreglo = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo, entornos);
                     break;
                 case 7:
 
@@ -183,26 +185,41 @@ namespace Interpreter.analizador
             }
         }
 
-        private static object ARRAY_INIT(ParseTreeNode root) {
-
+        private static object ARRAY_INIT(ParseTreeNode root, List<object> val, Stack<Ambito> entornos) {
+            //ARRAY_INIT = LISTA_LLAV
+             return LISTA_LLAV(root.ChildNodes[0], val, entornos);
         }
 
-        private static object LISTA_LLAV(ParseTreeNode root) {
-
-        }
-
-        private static object LLAVE(ParseTreeNode root) {
-
-        }
-
-        private static object LISTA_EXP(ParseTreeNode root, List<object> val) {
+        private static object LISTA_LLAV(ParseTreeNode root, List<object> val, Stack<Ambito> entornos) {
             if (root.ChildNodes.Count == 3) {
-                val.Add(LISTA_EXP(root.ChildNodes[0], val);
-                
-                listado += root.ChildNodes[2].Token.Value.ToString();
-            } else if (root.ChildNodes.Count == 1) {
-                val.Add(EXP(root.ChildNodes[0]));
+                //LISTA_LLAV = LISTA_LLAV + coma + LLAVE
+                LISTA_LLAV(root.ChildNodes[0], val, entornos);
+                val.Add(LLAVE(root.ChildNodes[2], val, entornos));
             }
+            else if (root.ChildNodes.Count == 1) {
+                //LISTA_LLAV = LLAVE
+                val.Add(LLAVE(root.ChildNodes[0], val, entornos));
+            }
+            return val;
+        }
+
+        private static object LLAVE(ParseTreeNode root, List<object> val, Stack<Ambito> entornos) {
+            if (root.ChildNodes.Count == 3) {
+                LISTA_LLAV(root.ChildNodes[1], val, entornos);
+            } else if (root.ChildNodes.Count == 1) {
+                return LISTA_EXP(root.ChildNodes[0], val, entornos);
+            }
+            return null;
+        }
+
+        private static object LISTA_EXP(ParseTreeNode root, List<object> val, Stack<Ambito> entornos) {
+            if (root.ChildNodes.Count == 3) {
+                LISTA_EXP(root.ChildNodes[0], val, entornos);
+                val.Add(EXP(root.ChildNodes[2], entornos));
+            } else if (root.ChildNodes.Count == 1) {
+                val.Add(EXP(root.ChildNodes[0], entornos));
+            }
+            return val;
         }
 
         private static void FUNCION(ParseTreeNode root, Stack<Ambito> entornos) {

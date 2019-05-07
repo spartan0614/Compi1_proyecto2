@@ -45,7 +45,7 @@ namespace Interpreter.analizador
             var parAbre = ToTerm("(");
             var parCierra = ToTerm(")");
             var llavAbre = ToTerm("{");
-            var llavCierra = ToTerm("{");
+            var llavCierra = ToTerm("}");
             //tipos de dato
             var Int = ToTerm("int");
             var String = ToTerm("string");
@@ -165,19 +165,19 @@ namespace Interpreter.analizador
                         //| EXP + ";"
                         ;
 
-            DECLARACION.Rule = ACCESO + TIPO + LISTA_ID + igual + EXP                               //5
-                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT    //7
-                             | TIPO + LISTA_ID + igual + EXP                                        //4 **
-                             | TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT             //6
-                             | ACCESO + TIPO + LISTA_ID                                             //3
-                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION                         //5
-                             | TIPO + LISTA_ID                                                      //2
-                             | TIPO + array + LISTA_ID + DIMENSION                                  //4 **
+            DECLARACION.Rule = ACCESO + TIPO + LISTA_ID + igual + EXP                             //5
+                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT  //7
+                             | TIPO + LISTA_ID + igual + EXP                                      //4 **
+                             | TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT           //6
+                             | ACCESO + TIPO + LISTA_ID                                           //3
+                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION                       //5
+                             | TIPO + LISTA_ID                                                    //2
+                             | TIPO + array + LISTA_ID + DIMENSION                                //4 **
                              //De tipo id
-                             | ACCESO + id + LISTA_ID + igual + EXP                                 //5
-                             | id + LISTA_ID + igual + EXP                                          //4 **
-                             | ACCESO + id + LISTA_ID                                               //3
-                             | id + LISTA_ID                                                        //2
+                             | ACCESO + id + LISTA_ID + igual + EXP                               //5
+                             | id + LISTA_ID + igual + EXP                                        //4 **
+                             | ACCESO + id + LISTA_ID                                             //3
+                             | id + LISTA_ID                                                      //2
                              
                              ;
 
@@ -326,7 +326,7 @@ namespace Interpreter.analizador
                             | LLAVE
                             ;
 
-            LLAVE.Rule = parAbre + LISTA_LLAV + parCierra
+            LLAVE.Rule = llavAbre + LISTA_LLAV + llavCierra
                        | LISTA_EXP
                        ;
 
@@ -373,7 +373,7 @@ namespace Interpreter.analizador
 
             #region PREFERENCIAS
             this.Root = S;
-            MarkPunctuation("{", "}", "(", ")", ";", "[", "]", ":");
+            MarkPunctuation("(", ")", ";", "[", "]", ":");
 
             RegisterOperators(7, Associativity.Right,"^");
             RegisterOperators(6, Associativity.Left, "*", "/");
