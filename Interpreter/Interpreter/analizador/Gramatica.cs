@@ -145,7 +145,7 @@ namespace Interpreter.analizador
                               ;
 
             CLASE.Rule = clase + id + IMPORTAR + "{" + LISTA_CUERPO + "}"
-                       | clase + id + "{" + LISTA_CUERPO +"}"
+                       | clase + id + "{" + LISTA_CUERPO + "}"
                        ;
 
             IMPORTAR.Rule = importar + LISTA_ID
@@ -326,7 +326,7 @@ namespace Interpreter.analizador
                             | LLAVE
                             ;
 
-            LLAVE.Rule = llavAbre + LISTA_LLAV + llavCierra
+            LLAVE.Rule = ToTerm("{") + LISTA_LLAV + ToTerm("}")
                        | LISTA_EXP
                        ;
 
@@ -373,7 +373,7 @@ namespace Interpreter.analizador
 
             #region PREFERENCIAS
             this.Root = S;
-            MarkPunctuation("(", ")", ";", "[", "]", ":");
+            MarkPunctuation("{","}","(", ")", ";", "[", "]", ":");
 
             RegisterOperators(7, Associativity.Right,"^");
             RegisterOperators(6, Associativity.Left, "*", "/");
