@@ -33,7 +33,13 @@ namespace Interpreter.analizador
             }
         }
 
-    public static String expresion(ParseTreeNode root) {
+        /*--------------------------------------------------RECORRIDO 1--------------------------------------------------------------
+                              Almacenado métodos y sus cuerpos y variables globales del archivo actual                              
+        ---------------------------------------------------------------------------------------------------------------------------*/
+
+        
+
+        public static String expresion(ParseTreeNode root) {
             switch ((String)root.Term.Name) {
                 case "S":
                     //Console.WriteLine("Entro a S");
@@ -131,7 +137,7 @@ namespace Interpreter.analizador
                     FUNCION(root.ChildNodes[0], entornos);
                     break;
                 case "MAIN":
-
+                    MAIN(root.ChildNodes[0], entornos);
                     break;
                 case "DECLARACION":
                     DECLARACION(root.ChildNodes[0], entornos);
@@ -139,14 +145,49 @@ namespace Interpreter.analizador
             }
         }
 
+        private static void MAIN(ParseTreeNode root, Stack<Ambito> entornos) {
+            Ambito main_ = new Ambito();
+            entornos.Push(main_);
+            L_SENTENCIAS(root.ChildNodes[1], entornos);
+            entornos.Pop();
+        }
+
         private static void DECLARACION(ParseTreeNode root, Stack<Ambito> entornos) {
             switch (root.ChildNodes.Count)
             {
                 case 2:
+                    if (root.ChildNodes[0].Token == null)
+                    {
+                        //DECLARACION = TIPO + LISTA_ID
+                        String listado = "";
+                        listado += LISTA_ID(root.ChildNodes[1], listado);
+                        string[] identificadores = listado.Split(',');
+                        for (int i = 0; i < identificadores.Count(); i++)
+                        {
+                            Variable v = new Variable(1, "publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores[i], "", "", null);
+                            entornos.Peek().Insertar(identificadores[i], v);
+                        }
+                    }
+                    else {
+                        //DECLARACION = id + LISTA_ID
 
+                    }
                     break;
                 case 3:
-
+                    if (root.ChildNodes[1].Token == null) {
+                        //DECLARACION = ACCESO + TIPO + LISTA_ID
+                        String listado = "";
+                        listado += LISTA_ID(root.ChildNodes[2], listado);
+                        string[] identificadores = listado.Split(',');
+                        for (int i = 0; i < identificadores.Count(); i++)
+                        {
+                            Variable v = new Variable(1, root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), root.ChildNodes[1].ChildNodes[0].Token.Value.ToString(), identificadores[i], "", "", null);
+                            entornos.Peek().Insertar(identificadores[i], v);
+                        }
+                    }
+                    else {
+                        //DECLARACION = ACCESO + id + LISTA_ID
+                    }
                     break;
                 case 4:
                     if (root.ChildNodes[1].Token == null)  //No es rama
@@ -158,7 +199,7 @@ namespace Interpreter.analizador
                             string[] identificadores = listado.Split(',');
                             for (int i = 0; i < identificadores.Count(); i++)
                             {
-                                Variable v = new Variable("publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores[i], EXP(root.ChildNodes[3], entornos).ToString() );
+                                Variable v = new Variable(1,"publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores[i],"","", EXP(root.ChildNodes[3], entornos).ToString() );
                                 entornos.Peek().Insertar(identificadores[i], v);
                             }
                         }
@@ -168,33 +209,103 @@ namespace Interpreter.analizador
                         }
                     }
                     else {
-                        //array
+                        //DECLARACION = TIPO + array + LISTA_ID + DIMENSION
+                        //Obteniendo lista de Ids
+                        String listado3 = "";
+                        listado3 += LISTA_ID(root.ChildNodes[2], listado3);
+                        string[] identificadores3 = listado3.Split(',');
+
+                        //Obteniendo dimensiones de arreglo
+                        List<object> dimensiones2 = new List<object>();
+                        dimensiones2 = (List<object>)DIMENSION(root.ChildNodes[3], dimensiones2, entornos);
+
+                        //Almacenando arreglos
+                        for (int i = 0; i < identificadores3.Count(); i++)
+                        {
+                            Variable v = new Variable(2, "publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores3[i], dimensiones2.Count.ToString(), dimensiones2, null);
+                            entornos.Peek().Insertar(identificadores3[i], v);
+                        }
                     }
                     break;
                 case 5:
+                    if (root.ChildNodes[2].Token == null)
+                    {
+                        if (root.ChildNodes[1].Token == null)
+                        {
+                            //DECLARACION = ACCESO + TIPO + LISTA_ID + igual + EXP
+                            String listado = "";
+                            listado += LISTA_ID(root.ChildNodes[1], listado);
+                            string[] identificadores = listado.Split(',');
+                            for (int i = 0; i < identificadores.Count(); i++)
+                            {
+                                Variable v = new Variable(1, root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), root.ChildNodes[1].ChildNodes[0].Token.Value.ToString(), identificadores[i], "", "", EXP(root.ChildNodes[3], entornos).ToString());
+                                entornos.Peek().Insertar(identificadores[i], v);
+                            }
+                        }
+                        else {
+                            //DECLARACION = ACCESO + id + LISTA_ID + igual + EXP
+                        }
+                    }
+                    else {
+                        //DECLARACION = ACCESO + TIPO + array + LISTA_ID + DIMENSION
+                        //Obteniendo lista de Ids
+                        String listado = "";
+                        listado += LISTA_ID(root.ChildNodes[3], listado);
+                        string[] identificadores = listado.Split(',');
 
+                        //Obteniendo dimensiones de arreglo
+                        List<object> dimensiones4 = new List<object>();
+                        dimensiones4 = (List<object>)DIMENSION(root.ChildNodes[4], dimensiones4, entornos);
+
+                        //Almacenando arreglos
+                        for (int i = 0; i < identificadores.Count(); i++)
+                        {
+                            Variable v = new Variable(2, root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), root.ChildNodes[1].ChildNodes[0].Token.Value.ToString(), identificadores[i], dimensiones4.Count.ToString(), dimensiones4, null);
+                            entornos.Peek().Insertar(identificadores[i], v);
+                        }
+                    }
                     break;
                 case 6:
                     //DECLARACION = TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT
+                    //Obteniendo lista de Ids
+                    String listado2 = "";
+                    listado2 += LISTA_ID(root.ChildNodes[2], listado2);
+                    string[] identificadores2 = listado2.Split(',');
+
                     //Obteniendo dimensiones de arreglo
-                    List<object> dimesiones = new List<object>();
-                    dimesiones = (List<object>)DIMENSION(root.ChildNodes[3],dimesiones, entornos);
-                    if (dimesiones.Count == 2)
-                    {
-
-                    }
-                    else if (dimesiones.Count == 3) {
-
-                    }
-
-
-
+                    List<object> dimensiones = new List<object>();
+                    dimensiones = (List<object>)DIMENSION(root.ChildNodes[3],dimensiones, entornos);
 
                     //Obteniendo valores del arreglo
                     List<object> arreglo = new List<object>();
-                    arreglo = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo, entornos);
-                    object[] mislistas = new object[5];
-
+                    if (dimensiones.Count == 2)
+                    {
+                       
+                        arreglo = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo, entornos);
+                    }
+                    else if (dimensiones.Count == 3) {
+                        
+                        List<object> arreglo_aux = new List<object>();
+                        arreglo_aux = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo_aux, entornos);  //Obteniendo filas
+                        Int32 primeraDimension = Int32.Parse(dimensiones.ElementAt(0).ToString());           //Tamaño de la primera dimension
+                        int div = (arreglo_aux.Count / primeraDimension);                                   //Filas / primera dimension
+                        int contador = 0; 
+                        for (int i = 0; i < primeraDimension; i++) {
+                            List<object> rowFirstDimension = new List<object>();
+                            for (int j = 0; j < div; j++)
+                            {
+                                rowFirstDimension.Add(arreglo_aux[contador]);
+                                contador++;
+                            }
+                            arreglo.Add(rowFirstDimension);
+                        }
+                    }
+                    //Almacenando arreglo
+                    for (int i = 0; i < identificadores2.Count(); i++)
+                    {
+                        Variable v = new Variable(2,"publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), identificadores2[i],dimensiones.Count.ToString(), dimensiones, arreglo);
+                        entornos.Peek().Insertar(identificadores2[i], v);
+                    }
                     break;
                 case 7:
 
@@ -586,7 +697,7 @@ namespace Interpreter.analizador
                     if (root.ChildNodes[1].ChildNodes[0].ToString().Contains(" (id)")) //ERROR
                     {
                         String nombre = root.ChildNodes[1].ChildNodes[0].Token.Value.ToString();
-                        Variable v = new Variable("publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), nombre, EXP(root.ChildNodes[3], entornos).ToString());
+                        Variable v = new Variable(1,"publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), nombre,"","", EXP(root.ChildNodes[3], entornos).ToString());
                         return v;
                     }
                     else {
@@ -621,11 +732,11 @@ namespace Interpreter.analizador
                                         case "int":
                                             var.valor = (Convert.ToInt32(var.valor) + 1).ToString();
                                             return Convert.ToInt32(var.valor);
-                                            //break;
+                                        //break;
                                         case "double":
                                             var.valor = (Convert.ToDouble(var.valor) + 1).ToString();
                                             return Convert.ToDouble(var.valor);
-                                            //break;
+                                        //break;
                                         case "char":
                                             var.valor = (Convert.ToInt32(Convert.ToChar(var.valor)) + 1).ToString();
                                             return Convert.ToInt32(Convert.ToChar(var.valor));
@@ -1146,15 +1257,15 @@ namespace Interpreter.analizador
                                         switch (e2)
                                         {
                                             case int _:
-                                                return (Int32)e1 ^ (Int32)e2;
+                                                return Math.Pow((Int32)e1, (Int32)e2);
                                             case string _:
                                                 return "Valores incompatibles";
                                             case double _:
                                                 return Math.Pow((Int32)e1, (Double)e2);
                                             case char _:
-                                                return (Int32)e1 ^ ((Int32)((Char)e2));
+                                                return Math.Pow((Int32)e1, ((Int32)((Char)e2)));
                                             case bool _:
-                                                return (Int32)e1 ^ ((bool)e2 ? 1 : 0);
+                                                return Math.Pow((Int32)e1, ((bool)e2 ? 1 : 0));
                                         }
                                         break;
                                     case double _:
@@ -1176,30 +1287,30 @@ namespace Interpreter.analizador
                                         switch (e2)
                                         {
                                             case int _:
-                                                return ((Int32)((Char)e1)) ^ (Int32)e2;
+                                                return Math.Pow(((Int32)((Char)e1)), (Int32)e2);
                                             case string _:
                                                 return "Valores incompatibles";
                                             case double _:
                                                 return Math.Pow(((Int32)((Char)e1)), (Double)e2);
                                             case char _:
-                                                return ((Int32)((Char)e1)) ^ ((Int32)((Char)e2));
+                                                return Math.Pow(((Int32)((Char)e1)), ((Int32)((Char)e2)));
                                             case bool _:
-                                                return ((Int32)((Char)e1)) ^ ((bool)e2 ? 1 : 0);
+                                                return Math.Pow(((Int32)((Char)e1)), ((bool)e2 ? 1 : 0));
                                         }
                                         break;
                                     case bool _:
                                         switch (e2)
                                         {
                                             case int _:
-                                                return ((bool)e1 ? 1 : 0) ^ (Int32)e2;
+                                                return Math.Pow(((bool)e1 ? 1 : 0), (Int32)e2);
                                             case string _:
                                                 return "Valores incompatibles";
                                             case double _:
                                                 return Math.Pow(((bool)e1 ? 1 : 0), (Double)e2);
                                             case char _:
-                                                return ((bool)e1 ? 1 : 0) ^ ((Int32)((Char)e2));
+                                                return Math.Pow(((bool)e1 ? 1 : 0), ((Int32)((Char)e2)));
                                             case bool _:
-                                                return (bool)e1 ^ (bool)e2;
+                                                return "Valores incompatibles";
                                         }
                                         break;
                                 }
@@ -1208,7 +1319,76 @@ namespace Interpreter.analizador
                     }
                     break;
                 case 2:
+                    if (root.ChildNodes[0].Token.Value.ToString().Equals("!"))
+                    {
+                        object e = EXP(root.ChildNodes[1], entornos);
+                        if (e is bool b) {
+                            return !b;
+                        }
+                    }
+                    else if (root.ChildNodes[0].Token.Value.ToString().Equals("-"))
+                    {
+                        object e = EXP(root.ChildNodes[1], entornos);
+                        switch (e)
+                        {
+                            case int _:
+                                return (-1 * (Int32)e);
+                            case string _:
+                                return "Valores incompatibles";
+                            case double _:
+                                return (-1 * (Double)e);
+                            case char _:
+                                return (-1 * ((Int32)((Char)e)));
+                            case bool _:
+                                return (-1 * ((bool)e ? 1 : 0));
+                        }
+                    }
+                    else if (root.ChildNodes[0].ToString().ToLower().Equals("new"))
+                    {
 
+                    }
+                    else if (root.ChildNodes[0].ToString().Contains(" (id)"))
+                    {
+                        if (root.ChildNodes[1].Term.Name == "DIMENSION")
+                        {
+                            //Nombre del arreglo
+                            String nombre = root.ChildNodes[0].Token.Value.ToString();
+                            //Obteniendo dimensiones de arreglo
+                            List<object> dimensiones = new List<object>();
+                            dimensiones = (List<object>)DIMENSION(root.ChildNodes[1], dimensiones, entornos);
+                            //Obteniendo variable
+                            Variable var = getValorVariable(root.ChildNodes[0].Token.Value.ToString(), entornos);
+
+                            if ((Int32.Parse(var.dimensiones) == 2) && (dimensiones.Count == 2))
+                            {
+                                //Ingresando al arreglo
+                                Int32 x = (Int32)dimensiones.ElementAt(0);
+                                Int32 y = (Int32)dimensiones.ElementAt(1);
+                                List<object> array = (List<object>)var.valor;
+                                List<object> fila = (List<object>)array.ElementAt(x);
+                                object val = fila.ElementAt(y);
+                                return val;
+
+                            } else if ((Int32.Parse(var.dimensiones) == 3) && (dimensiones.Count == 3)) {
+                                //Ingresando al arreglo
+                                Int32 x = (Int32)dimensiones.ElementAt(0);
+                                Int32 y = (Int32)dimensiones.ElementAt(1);
+                                Int32 z = (Int32)dimensiones.ElementAt(2);
+                                List<object> array = (List<object>)var.valor;
+                                List<object> fila = (List<object>)array.ElementAt(x);
+                                List<object> columna = (List<object>)fila.ElementAt(y);
+                                object val = columna.ElementAt(z);
+                                return val;
+                            }
+                            else {
+                                return "Dimensiones incorrectas";
+
+                            }
+                        }
+                        else if (root.ChildNodes[1].Term.Name == "CALL") {
+
+                        }
+                    }
                     break;
                 case 1: 
                     String valor = root.ChildNodes[0].ToString(); 

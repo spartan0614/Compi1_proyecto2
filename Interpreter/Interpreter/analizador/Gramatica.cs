@@ -134,6 +134,7 @@ namespace Interpreter.analizador
             NonTerminal HACER = new NonTerminal("HACER");
             NonTerminal PASOS = new NonTerminal("PASOS");
             NonTerminal FIGURA = new NonTerminal("FIGURA");
+            NonTerminal CALL = new NonTerminal("CALL");
             #endregion
 
             #region GRAMATICA
@@ -165,17 +166,17 @@ namespace Interpreter.analizador
                         //| EXP + ";"
                         ;
 
-            DECLARACION.Rule = ACCESO + TIPO + LISTA_ID + igual + EXP                             //5
+            DECLARACION.Rule = ACCESO + TIPO + LISTA_ID + igual + EXP                             //5 **
                              | ACCESO + TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT  //7
                              | TIPO + LISTA_ID + igual + EXP                                      //4 **
-                             | TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT           //6
-                             | ACCESO + TIPO + LISTA_ID                                           //3
-                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION                       //5
-                             | TIPO + LISTA_ID                                                    //2
+                             | TIPO + array + LISTA_ID + DIMENSION + igual + ARRAY_INIT           //6 **
+                             | ACCESO + TIPO + LISTA_ID                                           //3 **
+                             | ACCESO + TIPO + array + LISTA_ID + DIMENSION                       //5 **
+                             | TIPO + LISTA_ID                                                    //2 **
                              | TIPO + array + LISTA_ID + DIMENSION                                //4 **
                              //De tipo id
                              | ACCESO + id + LISTA_ID + igual + EXP                               //5
-                             | id + LISTA_ID + igual + EXP                                        //4 **
+                             | id + LISTA_ID + igual + EXP                                        //4 
                              | ACCESO + id + LISTA_ID                                             //3
                              | id + LISTA_ID                                                      //2
                              
@@ -338,7 +339,7 @@ namespace Interpreter.analizador
                      | EXP + or + EXP               
                      | EXP + and + EXP              
                      | EXP + potencia + EXP         
-                     | not + EXP                    //2 
+                     | not + EXP                     
                      | EXP + mayor + EXP            
                      | EXP + menor + EXP            
                      | EXP + mayorigual + EXP       
@@ -349,17 +350,16 @@ namespace Interpreter.analizador
                      | EXP + menos + EXP            
                      | EXP + mult + EXP             
                      | EXP + div + EXP              
-                     | menos + EXP                  //2 
-                     | EXP + mas + mas              //3
-                     | EXP + menos + menos          //3
-                     | "(" + EXP + ")"    //3    
+                     | menos + EXP                   
+                     | EXP + mas + mas              
+                     | EXP + menos + menos          
+                     | "(" + EXP + ")"                  
                      | New + id + "(" + ")"         //2       
                      | Decimal                      
                      | numero                       
-                     | id                                      
+                     | id                                     
                      | id + punto + EXP             //3
-                     | id + "(" + LISTA_EXP + ")"   //2 
-                     | id + parAbre + parCierra     //3                 
+                     | id + CALL                    //2
                      | cadena                       
                      | caracter                     
                      | verdadero                    
@@ -368,6 +368,10 @@ namespace Interpreter.analizador
                      | False                        
                      | id + DIMENSION               //2          
                      ;
+
+            CALL.Rule = "(" + LISTA_EXP + ")"
+                      | "(" + ")"
+                      ;
 
             #endregion
 

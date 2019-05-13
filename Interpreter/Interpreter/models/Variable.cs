@@ -8,16 +8,27 @@ namespace Interpreter.models
 {
     class Variable
     {
+        public int clase;
         public String acceso;
         public String tipo;
         public String nombre;
+        public String dimensiones;
+        public object sizes;
         public object valor;
 
-        public Variable(String acceso, String tipo, String nombre, object valor) {
+        public Variable(int clase,  String acceso, String tipo, String nombre, String dimensiones, object sizes ,object valor) {
+            this.clase = clase;
             this.acceso = acceso;
             this.tipo = tipo;
             this.nombre = nombre;
+            this.dimensiones = dimensiones;
+            this.sizes = sizes;
             this.valor = valor;
+        }
+
+        public int Clase {
+            get { return clase; }
+            set { clase = value; }
         }
 
         public string Acceso {
@@ -35,6 +46,18 @@ namespace Interpreter.models
         {
             get { return nombre; }
             set { nombre = value; }
+        }
+
+        public string Dimensiones
+        {
+            get { return dimensiones; }
+            set { dimensiones = value; }
+        }
+
+        public object Sizes
+        {
+            get { return sizes; }
+            set { sizes = value; }
         }
 
         public object Valor
