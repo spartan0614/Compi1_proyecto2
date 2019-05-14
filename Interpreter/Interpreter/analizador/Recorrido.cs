@@ -42,26 +42,20 @@ namespace Interpreter.analizador
         public static String expresion(ParseTreeNode root) {
             switch ((String)root.Term.Name) {
                 case "S":
-                    //Console.WriteLine("Entro a S");
+                    
                     expresion(root.ChildNodes[0]);   //LISTA_CLASES
                     break;
                 case "LISTA_CLASES":
-                    //Console.WriteLine("Entro a LISTA_CLASES");
                     if (root.ChildNodes.Count == 2) {
-                        //Console.WriteLine("LISTA_CLASES");
+                        
                         expresion(root.ChildNodes[0]);    //LISTA_CLASES
-                        //Console.WriteLine("CLASE");
                         expresion(root.ChildNodes[1]);    //CLASE
-
                     } else if (root.ChildNodes.Count == 1) {
-                        //Console.WriteLine("CLASE");
                         expresion(root.ChildNodes[0]);    //CLASE
                     }
                     break;
                 case "CLASE":
-                    //Console.WriteLine("Entro a CLASE");
                     CLASE(root);
-                    
                     break;
             }
             return "";
@@ -70,32 +64,24 @@ namespace Interpreter.analizador
         public static void CLASE(ParseTreeNode root) {
             //Stack entornos = new Stack();
             Stack<Ambito> entornos = new Stack<Ambito>();
-
             Ambito global = new Ambito();
             entornos.Push(global);
        
             if (root.ChildNodes.Count == 4)
             {
-                //Console.WriteLine("CLASE trae imports");
                 IMPORTAR(root.ChildNodes[2]);                       //IMPORTAR
                 LISTA_CUERPO(root.ChildNodes[3], entornos);         //LISTA_CUERPO
-
-                
             }
             else if(root.ChildNodes.Count == 3)
             {
-                //Console.WriteLine("CLASE sin imports");
                 LISTA_CUERPO(root.ChildNodes[2], entornos);         //LISTA_CUERPO
             }
-
-
             MostrarVariables(entornos);
         }
 
         public static void IMPORTAR(ParseTreeNode root) {
             String listado = "";
             listado += LISTA_ID(root.ChildNodes[1], listado);
-            //Console.WriteLine(listado);
         }
 
         public static string LISTA_ID(ParseTreeNode root, String listado) {
@@ -113,21 +99,13 @@ namespace Interpreter.analizador
         }
 
         public static void LISTA_CUERPO(ParseTreeNode root, Stack<Ambito> entornos) {
-           
-
             if (root.ChildNodes.Count == 2) {
-                
                 LISTA_CUERPO(root.ChildNodes[0], entornos);
-
-                
                 CUERPO(root.ChildNodes[1], entornos);
-
             }
             else if (root.ChildNodes.Count == 1) {
-                
                 CUERPO(root.ChildNodes[0], entornos);
             }
-            
         }
 
         public static void CUERPO(ParseTreeNode root, Stack<Ambito> entornos) {

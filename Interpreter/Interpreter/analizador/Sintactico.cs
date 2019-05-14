@@ -13,21 +13,21 @@ namespace Interpreter.analizador
 {
     class Sintactico : Grammar
     {
-        public static bool Analizar(String entrada) {
+        public static void Analizar(String entrada) {
             Gramatica gramatica = new Gramatica();
             LanguageData lenguaje = new LanguageData(gramatica);
             Parser parser = new Parser(lenguaje);
             ParseTree arbol = parser.Parse(entrada);
             ParseTreeNode raiz = arbol.Root;
 
-            if (raiz == null) { //No sé generó un anális de analisis sintáctico
-                return false;
+            if (raiz == null)
+            { //No sé generó un anális de analisis sintáctico
+                
             }
-
-            //GenerarImagen(raiz);
-            Recorrido.expresion(raiz);
-
-            return true;
+            else {
+                //GenerarImagen(raiz);
+                Recorrido.expresion(raiz);
+            }
         }
 
         public static void GenerarImagen(ParseTreeNode raiz)
