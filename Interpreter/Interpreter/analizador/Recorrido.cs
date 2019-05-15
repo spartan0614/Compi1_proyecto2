@@ -33,16 +33,9 @@ namespace Interpreter.analizador
             }
         }
 
-        /*--------------------------------------------------RECORRIDO 1--------------------------------------------------------------
-                              Almacenado métodos y sus cuerpos y variables globales del archivo actual                              
-        ---------------------------------------------------------------------------------------------------------------------------*/
-
-        
-
         public static String expresion(ParseTreeNode root) {
             switch ((String)root.Term.Name) {
                 case "S":
-                    
                     expresion(root.ChildNodes[0]);   //LISTA_CLASES
                     break;
                 case "LISTA_CLASES":
@@ -172,6 +165,7 @@ namespace Interpreter.analizador
                     {  
                         if (root.ChildNodes[0].Token == null)
                         {
+                            //DECLARACION = TIPO + LISTA_ID + igual + EXP
                             String listado = "";
                             listado += LISTA_ID(root.ChildNodes[1], listado);
                             string[] identificadores = listado.Split(',');
@@ -256,9 +250,13 @@ namespace Interpreter.analizador
 
                     //Obteniendo valores del arreglo
                     List<object> arreglo = new List<object>();
-                    if (dimensiones.Count == 2)
+                    if (dimensiones.Count == 1) {
+                        List<object> arreglo_aux = new List<object>();
+                        arreglo_aux = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo_aux, entornos);
+                        arreglo = (List<object>)arreglo_aux.ElementAt(0);
+                    }
+                    else if (dimensiones.Count == 2)
                     {
-                       
                         arreglo = (List<object>)ARRAY_INIT(root.ChildNodes[5], arreglo, entornos);
                     }
                     else if (dimensiones.Count == 3) {
@@ -422,17 +420,14 @@ namespace Interpreter.analizador
                                 case "FOR":
                                     ParseTreeNode raiz_for = SENTENCIA.ChildNodes[0];
                                     Ambito for1 = new Ambito();
-                                    //Int32 inicio;
-                                    Variable valor_inicial = null;
+                                    entornos.Push(for1);
                                     //OBTENIENDO VALOR INICIAL
                                     if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "DECLARACION") {
-                                        valor_inicial = INIT_DECLARACION_FOR(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
+                                        DECLARACION(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
                                     } else if (raiz_for.ChildNodes[1].ChildNodes[0].Term.Name.ToString() == "EXP") {
-
+                                        EXP(raiz_for.ChildNodes[1].ChildNodes[0], entornos);
                                     }
                                     //EJECUTANDO FOR
-                                    entornos.Push(for1);
-                                    entornos.Peek().Insertar(valor_inicial.nombre, valor_inicial);
                                     while ((bool)EXP(raiz_for.ChildNodes[2], entornos)) {
                                         var res = L_SENTENCIAS(raiz_for.ChildNodes[6], entornos);
                                         if (!res.Equals("@FINALLY@"))
@@ -667,28 +662,28 @@ namespace Interpreter.analizador
             }
         }
 
-        private static Variable INIT_DECLARACION_FOR(ParseTreeNode root, Stack<Ambito> entornos) {
-            if (root.ChildNodes.Count == 4)
-            {
-                if (root.ChildNodes[0].Token == null)  //No es rama
-                {
-                    if (root.ChildNodes[1].ChildNodes[0].ToString().Contains(" (id)")) //ERROR
-                    {
-                        String nombre = root.ChildNodes[1].ChildNodes[0].Token.Value.ToString();
-                        Variable v = new Variable(1,"publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), nombre,"","", EXP(root.ChildNodes[3], entornos).ToString());
-                        return v;
-                    }
-                    else {
-                        return null;
-                    }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-            return null;
-        }
+        //private static Variable INIT_DECLARACION_FOR(ParseTreeNode root, Stack<Ambito> entornos) {
+        //    if (root.ChildNodes.Count == 4)
+        //    {
+        //        if (root.ChildNodes[0].Token == null)  //No es rama
+        //        {
+        //            if (root.ChildNodes[1].ChildNodes[0].ToString().Contains(" (id)")) //ERROR
+        //            {
+        //                String nombre = root.ChildNodes[1].ChildNodes[0].Token.Value.ToString();
+        //                Variable v = new Variable(1,"publico", root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), nombre,"","", EXP(root.ChildNodes[3], entornos).ToString());
+        //                return v;
+        //            }
+        //            else {
+        //                return null;
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return null;
+        //        }
+        //    }
+        //    return null;
+        //}
 
         private static object EXP(ParseTreeNode root, Stack<Ambito> entornos) {
             switch (root.ChildNodes.Count) {
@@ -796,6 +791,57 @@ namespace Interpreter.analizador
                         switch (signo)
                         {
                             case "=":
+                                if (root.ChildNodes[0].ChildNodes.Count == 1) {
+                                    if (root.ChildNodes[0].ChildNodes[0].ToString().Contains(" (id)")) {
+                                        Variable var = getValorVariable(root.ChildNodes[0].ChildNodes[0].Token.Value.ToString(), entornos);
+                                        var.valor = e2;
+                                        return true;
+                                    }
+                                } else if (root.ChildNodes[0].ChildNodes.Count == 2) {
+
+                                    if ((root.ChildNodes[0].ChildNodes[0].ToString().Contains(" (id)")) && (root.ChildNodes[0].ChildNodes[0].Term.Name == "DIMENSION")) {
+                                        //Nombre del arreglo
+                                        String nombre = root.ChildNodes[0].ChildNodes[0].Token.Value.ToString();
+                                        //Obteniendo dimensiones de arreglo
+                                        List<object> dimensiones = new List<object>();
+                                        dimensiones = (List<object>)DIMENSION(root.ChildNodes[1], dimensiones, entornos);
+                                        //Obteniendo variable
+                                        Variable var = getValorVariable(root.ChildNodes[0].Token.Value.ToString(), entornos);
+
+                                        if ((Int32.Parse(var.dimensiones) == 1) && (dimensiones.Count == 1)) {
+                                            //Ingresando al arreglo
+                                            Int32 x = (Int32)dimensiones.ElementAt(0);
+                                            List<object> array = (List<object>)var.valor;
+                                            array.Insert(x, e2);
+                                        }
+                                        else if ((Int32.Parse(var.dimensiones) == 2) && (dimensiones.Count == 2))
+                                        {
+                                            //Ingresando al arreglo
+                                            Int32 x = (Int32)dimensiones.ElementAt(0);
+                                            Int32 y = (Int32)dimensiones.ElementAt(1);
+                                            List<object> array = (List<object>)var.valor;
+                                            List<object> fila = (List<object>)array.ElementAt(x);
+                                            fila.Insert(y, e2);
+                                        }
+                                        else if ((Int32.Parse(var.dimensiones) == 3) && (dimensiones.Count == 3))
+                                        {
+                                            //Ingresando al arreglo
+                                            Int32 x = (Int32)dimensiones.ElementAt(0);
+                                            Int32 y = (Int32)dimensiones.ElementAt(1);
+                                            Int32 z = (Int32)dimensiones.ElementAt(2);
+                                            List<object> array = (List<object>)var.valor;
+                                            List<object> fila = (List<object>)array.ElementAt(x);
+                                            List<object> columna = (List<object>)fila.ElementAt(y);
+                                            columna.Insert(z, e2);
+                                        }
+                                        else
+                                        {
+                                            return "Dimensiones incorrectas";
+
+                                        }
+                                    }
+                                    return true;
+                                }
                                 break;
                             case "||":
                                 if (e1 is bool a && e2 is bool b)
@@ -1337,7 +1383,14 @@ namespace Interpreter.analizador
                             //Obteniendo variable
                             Variable var = getValorVariable(root.ChildNodes[0].Token.Value.ToString(), entornos);
 
-                            if ((Int32.Parse(var.dimensiones) == 2) && (dimensiones.Count == 2))
+                            if ((Int32.Parse(var.dimensiones) == 1) && (dimensiones.Count == 1)) {
+                                //Ingresando al arreglo
+                                Int32 x = (Int32)dimensiones.ElementAt(0);
+                                List<object> array = (List<object>)var.valor;
+                                object val = array.ElementAt(x);
+                                return val;
+                            }
+                            else if ((Int32.Parse(var.dimensiones) == 2) && (dimensiones.Count == 2))
                             {
                                 //Ingresando al arreglo
                                 Int32 x = (Int32)dimensiones.ElementAt(0);
@@ -1381,6 +1434,9 @@ namespace Interpreter.analizador
                         return root.ChildNodes[0].Token.Value.ToString().ToCharArray()[0];
                     } else if (valor.Contains(" (id)")) {
                         Variable var = getValorVariable(root.ChildNodes[0].Token.Value.ToString(), entornos);
+                        if (var.valor == null) {
+                            return null;
+                        }
                         switch (var.tipo) {
                             case "int":
                                 return Int32.Parse(var.valor.ToString());

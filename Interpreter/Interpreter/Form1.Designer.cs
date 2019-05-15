@@ -43,7 +43,7 @@
             // 
             // btnCompilar
             // 
-            this.btnCompilar.Location = new System.Drawing.Point(999, 506);
+            this.btnCompilar.Location = new System.Drawing.Point(900, 659);
             this.btnCompilar.Name = "btnCompilar";
             this.btnCompilar.Size = new System.Drawing.Size(75, 23);
             this.btnCompilar.TabIndex = 0;
@@ -71,10 +71,10 @@
             // 
             // tabControl
             // 
-            this.tabControl.Location = new System.Drawing.Point(35, 90);
+            this.tabControl.Location = new System.Drawing.Point(12, 43);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(675, 572);
+            this.tabControl.Size = new System.Drawing.Size(870, 639);
             this.tabControl.TabIndex = 3;
             // 
             // menuStrip1
@@ -102,27 +102,27 @@
             // agregarToolStripMenuItem
             // 
             this.agregarToolStripMenuItem.Name = "agregarToolStripMenuItem";
-            this.agregarToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.agregarToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.agregarToolStripMenuItem.Text = "Agregar";
             this.agregarToolStripMenuItem.Click += new System.EventHandler(this.agregarToolStripMenuItem_Click);
             // 
             // abrirToolStripMenuItem
             // 
             this.abrirToolStripMenuItem.Name = "abrirToolStripMenuItem";
-            this.abrirToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.abrirToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.abrirToolStripMenuItem.Text = "Abrir";
             this.abrirToolStripMenuItem.Click += new System.EventHandler(this.abrirToolStripMenuItem_Click);
             // 
             // guardarToolStripMenuItem
             // 
             this.guardarToolStripMenuItem.Name = "guardarToolStripMenuItem";
-            this.guardarToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.guardarToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.guardarToolStripMenuItem.Text = "Guardar";
             // 
             // guardarComoToolStripMenuItem
             // 
             this.guardarComoToolStripMenuItem.Name = "guardarComoToolStripMenuItem";
-            this.guardarComoToolStripMenuItem.Size = new System.Drawing.Size(216, 26);
+            this.guardarComoToolStripMenuItem.Size = new System.Drawing.Size(179, 26);
             this.guardarComoToolStripMenuItem.Text = "Guardar como";
             // 
             // Form1

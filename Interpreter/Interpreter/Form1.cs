@@ -71,7 +71,7 @@ namespace Interpreter
         private void abrirToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog open_file = new OpenFileDialog();
-            open_file.Filter = "Text Files|*.txt";
+            open_file.Filter = "Text Files|*.fi";
             open_file.Title = "Seleccione un archivo";
             if (open_file.ShowDialog() == DialogResult.OK) {
                 CrearPestaniaTabControl(open_file.FileName, File.ReadAllText(open_file.FileName));
